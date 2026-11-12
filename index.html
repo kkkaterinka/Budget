@@ -139,6 +139,7 @@ h+=`<p class="note">Plan for ${mLabel()}. A change applies to this month and all
 <button class="gb" onclick="exportJSON()">Save backup (JSON)</button>
 <button class="gb" onclick="$('#fj').click()">Restore from backup (JSON)</button>
 <button class="gb" onclick="$('#fc').click()">Import CSV (date, amount, category, description)</button>
+<button class="gb" style="color:var(--bad)" onclick="resetAll()">Erase all data on this device</button>
 <input id="fj" type="file" accept=".json" hidden onchange="importJSON(this)"><input id="fc" type="file" accept=".csv,text/csv" multiple hidden onchange="importCSV(this)">
 <p class="empty">All data stays on this device.<br>Save a backup now and then.</p>`}
 h+=`<nav>${[['ov','Overview'],['tx','Transactions'],['fact','Fact'],['set','Plan']].map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';render()">${n}</button>`).join('')}</nav>`;
@@ -160,6 +161,7 @@ document.body.append(o);$('#cn').focus();
 $('#cs').onclick=()=>{const n=$('#cn').value.trim();if(!n){$('#cn').focus();return}S.cats.push({id:uid(),name:n,type:ty,budget:0});save();o.remove();render()}}
 function delCat(id){if(S.tx.some(t=>t.c===id))return alert('This category has transactions, so it cannot be deleted');if(confirm('Delete category?')){S.cats=S.cats.filter(c=>c.id!==id);save();render()}}
 function dl(name,txt,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()}
+function resetAll(){if(confirm('Erase ALL data on this device? Save a backup first.')&&confirm('Really erase everything, including transactions?')){S=seed();save();render()}}
 const exportJSON=()=>dl(`expenses-${today()}.json`,JSON.stringify(S),'application/json');
 const rd=(inp,cb)=>{const r=new FileReader();r.onload=()=>cb(r.result);r.readAsText(inp.files[0]);inp.value=''};
 function importJSON(i){rd(i,t=>{try{const d=JSON.parse(t);if(!d.cats||!d.tx)throw 0;if(confirm('Replace current data with this backup?')){S=d;S.plans=S.plans||{};save();render()}}catch(e){alert('This does not look like a backup from this app')}})}
